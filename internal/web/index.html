@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorSynth - Поиск семантически близких слов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input, select, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .similarity {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .error {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <h1>VectorSynth</h1>
+    <div class="container">
+        <div>
+            <label for="expression">Выражение (например "царь - мужчина + женщина" или просто слово):</label>
+            <input type="text" id="expression" placeholder="Введите слово или выражение">
+        </div>
+        <div>
+            <label for="topN">Количество результатов:</label>
+            <select id="topN">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+        <button id="search">Поиск</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function performSearch() {
+            const expression = document.getElementById('expression').value.trim();
+            const topN = document.getElementById('topN').value;
+            
+            if (!expression) {
+                document.getElementById('results').innerHTML = 
+                    '<div class="error">Пожалуйста, введите выражение</div>';
+                return;
+            }
+
+            document.getElementById('results').innerHTML = '<div>Идёт поиск...</div>';
+
+            fetch('/api/similar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    expression: expression,
+                    topN: parseInt(topN)
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.json();
+            })
+            .then(results => {
+                displayResults(results);
+            })
+            .catch(error => {
+                document.getElementById('results').innerHTML = 
+                    `<div class="error">Ошибка: ${error.message}</div>`;
+            });
+        }
+
+        // Обработка клика на кнопку
+        document.getElementById('search').addEventListener('click', performSearch);
+        
+        // Обработка нажатия Enter в поле ввода
+        document.getElementById('expression').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div>Ничего не найдено</div>';
+                return;
+            }
+
+            let html = '<h3>Результаты:</h3>';
+            results.forEach((item, index) => {
+                html += `
+                    <div class="result-item">
+                        ${index + 1}. ${item.word} 
+                        <span class="similarity">(сходство: ${item.similarity.toFixed(4)})</span>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
