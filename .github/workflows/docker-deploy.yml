@@ -76,9 +76,9 @@ jobs:
 
       - name: Deploy to Docker Swarm
         run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ env.PORT }} deploy@${{ env.HOST }} << 'EOF'
-            cd $DEPLOY_DIR
-            docker stack deploy -c docker-compose.yml $STACK_NAME --with-registry-auth
-            sleep 10
-            docker service ls --filter "name=${STACK_NAME}_" --format "table {{.Name}}\t{{.Image}}\t{{.Replicas}}"
-          EOF
+          ssh -o StrictHostKeyChecking=no -p ${{ env.PORT }} deploy@${{ env.HOST }} "
+            cd ${{ env.DEPLOY_DIR }} && \
+            docker stack deploy -c docker-compose.yml ${{ env.STACK_NAME }} --with-registry-auth && \
+            sleep 10 && \
+            docker service ls --filter \"name=${{ env.STACK_NAME }}_\" --format \"table {{.Name}}\t{{.Image}}\t{{.Replicas}}\"
+          "
