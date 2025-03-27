@@ -6,11 +6,9 @@ on:
     paths-ignore:
       - '**/README.md'
       - '**/docs/**'
-  pull_request:
+  pull_request_target:
+    types: [closed]
     branches: [ main ]
-    paths-ignore:
-      - '**/README.md'
-      - '**/docs/**'
 
 env:
   REGISTRY: ghcr.io/terratensor
@@ -32,17 +30,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Inject branch slug
-        uses: rlespinasse/github-slug-action@v5
-
-      - name: Set image tag
-        run: |
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            echo "IMAGE_TAG=latest" >> $GITHUB_ENV
-          else
-            echo "IMAGE_TAG=${GITHUB_REF_SLUG}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
-          fi
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -52,14 +39,18 @@ jobs:
 
       - name: Build and push VectorSynth image
         run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    # Важное условие - запускаем только для пуша в main (не для PR)
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Запускаем деплой если:
+    # 1. Прямой пуш в main ИЛИ
+    # 2. Pull Request был merged в main
+    if: |
+      github.ref == 'refs/heads/main' && github.event_name == 'push' ||
+      github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
 
     steps:
       - name: Checkout repository
@@ -75,7 +66,6 @@ jobs:
         run: |
           export REGISTRY=${{ env.REGISTRY }}
           export IMAGE_NAME=${{ env.IMAGE_NAME }}
-          export IMAGE_TAG=${{ env.IMAGE_TAG }}
           envsubst < docker-compose.yml > docker-compose-env.yml
           cat docker-compose-env.yml
 
