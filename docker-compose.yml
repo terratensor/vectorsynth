@@ -1,30 +1,36 @@
-version: '3.8'
-
 services:
   vectorsynth:
-    image: ghcr.io/terratensor/vectorsynth:latest
-    container_name: vectorsynth
-    restart: unless-stopped
+    image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.worker == frontend-1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.http.routers.vectorsynth.rule=Host(`vectorsynth.gmtx.ru`)
+        - traefik.http.services.vectorsynth.loadBalancer.server.port=8080
+        - traefik.http.middlewares.vectorsynth-redirect.redirectRegex.regex=^(https?://)www.vectorsynth.gmtx.ru/(.*)$$
+        - traefik.http.middlewares.vectorsynth-redirect.redirectRegex.replacement=$${1}vectorsynth.gmtx.ru/$${2}
+        - traefik.http.middlewares.vectorsynth-redirect.redirectRegex.permanent=true
+        - traefik.http.routers.vectorsynth.middlewares=vectorsynth-redirect,secure-headers
+        - traefik.http.routers.vectorsynth.entryPoints=https
+        - traefik.http.routers.vectorsynth.tls=true
+        - traefik.http.routers.vectorsynth.tls.certResolver=letsEncrypt
+        - traefik.http.routers.vectorsynth.service=vectorsynth
     volumes:
       - vectors_data:/data/vectors
     networks:
       - traefik-public
-    deploy:
-      placement:
-        constraints: [ node.labels.worker == frontend-1 ]
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=traefik-public
-      - traefik.http.routers.vectorsynth.rule=Host(`vectorsynth.gmtx.ru`)
-      - traefik.http.services.vectorsynth.loadBalancer.server.port=8080
-      - traefik.http.middlewares.vectorsynth-redirect.redirectRegex.regex=^(https?://)www.vectorsynth.gmtx.ru/(.*)$$
-      - traefik.http.middlewares.vectorsynth-redirect.redirectRegex.replacement=$${1}vectorsynth.gmtx.ru/$${2}
-      - traefik.http.middlewares.vectorsynth-redirect.redirectRegex.permanent=true
-      - traefik.http.routers.vectorsynth.middlewares=vectorsynth-redirect,secure-headers
-      - traefik.http.routers.vectorsynth.entryPoints=https
-      - traefik.http.routers.vectorsynth.tls=true
-      - traefik.http.routers.vectorsynth.tls.certResolver=letsEncrypt
-      - traefik.http.routers.vectorsynth.service=vectorsynth
 
 volumes:
   vectors_data:
