@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24.1-alpine AS builder
 
 WORKDIR /app
 COPY . .
@@ -15,7 +15,6 @@ WORKDIR /app
 COPY --from=builder /app/vectorsynth .
 COPY --from=builder /app/internal/web ./internal/web
 
-# Создаем директорию для volume с векторами
 RUN mkdir -p /data/vectors
 
 VOLUME /data/vectors
