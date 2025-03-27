@@ -54,7 +54,7 @@ curl -X POST https://vectorsynth.gmtx.ru/api/similar \
 
 ## Источник векторов
 
-Векторные представления слов получены с использованием [glove-pipeline](https://github.com/terratensor/glove-pipeline) на основе текстов с сайта [SVODD](https://svodd.ru).
+Векторные представления слов получены с использованием [glove-pipeline](https://github.com/terratensor/glove-pipeline) на основе текстов с сайта [svodd.ru](https://svodd.ru).
 
 ## Лицензия
 
