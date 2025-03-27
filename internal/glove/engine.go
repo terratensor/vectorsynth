@@ -77,9 +77,11 @@ func (e *Engine) FindSynonyms(expr string, topN int) ([]Similarity, error) {
 }
 
 func (e *Engine) ParseVectorExpression(expr string) ([]float64, error) {
+	// Приводим всё выражение к нижнему регистру
+	expr = strings.ToLower(expr)
 	parts := strings.Fields(expr)
 	if len(parts) == 0 {
-		return nil, fmt.Errorf("empty expression")
+		return nil, fmt.Errorf("пустое выражение")
 	}
 
 	var vectorLength int
@@ -96,9 +98,10 @@ func (e *Engine) ParseVectorExpression(expr string) ([]float64, error) {
 		case "+", "-":
 			operation = part
 		default:
+			// Слова уже в нижнем регистре
 			vec, ok := e.Vectors[part]
 			if !ok {
-				return nil, fmt.Errorf("word '%s' not found", part)
+				return nil, fmt.Errorf("слово '%s' не найдено", part)
 			}
 
 			switch operation {

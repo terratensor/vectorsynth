@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/terratensor/vectorsynth/internal/glove"
 )
@@ -50,6 +51,9 @@ func main() {
 			http.Error(w, "Неверный формат запроса", http.StatusBadRequest)
 			return
 		}
+
+		// Приводим выражение к нижнему регистру
+		request.Expression = strings.ToLower(request.Expression)
 
 		if request.TopN == 0 {
 			request.TopN = 20

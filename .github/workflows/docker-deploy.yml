@@ -22,7 +22,7 @@ env:
   IMAGE_NAME: vectorsynth
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -55,6 +55,16 @@ jobs:
           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    # Важное условие - запускаем только для пуша в main (не для PR)
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -76,9 +86,9 @@ jobs:
 
       - name: Deploy to Docker Swarm
         run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ env.PORT }} deploy@${{ env.HOST }} "
-            cd ${{ env.DEPLOY_DIR }} && \
-            docker stack deploy -c docker-compose.yml ${{ env.STACK_NAME }} --with-registry-auth && \
-            sleep 10 && \
-            docker service ls --filter \"name=${{ env.STACK_NAME }}_\" --format \"table {{.Name}}\t{{.Image}}\t{{.Replicas}}\"
-          "
+          ssh -o StrictHostKeyChecking=no -p ${{ env.PORT }} deploy@${{ env.HOST }} << 'EOF'
+            cd $DEPLOY_DIR
+            docker stack deploy -c docker-compose.yml $STACK_NAME --with-registry-auth
+            sleep 10
+            docker service ls --filter "name=${STACK_NAME}_" --format "table {{.Name}}\t{{.Image}}\t{{.Replicas}}"
+          EOF

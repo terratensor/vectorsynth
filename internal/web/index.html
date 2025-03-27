@@ -190,7 +190,9 @@
 
         // Поиск
         function performSearch() {
-            const expression = document.getElementById('expression').value.trim();
+            let expression = document.getElementById('expression').value.trim();
+            // Приводим к нижнему регистру на клиенте (опционально)
+            expression = expression.toLowerCase();
             const topN = document.getElementById('topN').value;
             
             if (!expression) {
