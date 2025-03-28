@@ -1,261 +1,368 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VectorSynth - Поиск семантически близких слов</title>
-    <style>
-        :root {
-            --bg-color: #f9f9f9;
-            --text-color: #333;
-            --container-bg: #fff;
-            --input-bg: #fff;
-            --input-border: #ddd;
-            --button-bg: #3498db;
-            --button-hover: #2980b9;
-            --result-border: #eee;
-            --link-color: #3498db;
-            --footer-color: #7f8c8d;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VectorSynth - Поиск семантически близких слов</title>
+  <style>
+    :root {
+      --bg-color: #f9f9f9;
+      --text-color: #333;
+      --container-bg: #fff;
+      --input-bg: #fff;
+      --input-border: #ddd;
+      --button-bg: #3498db;
+      --button-hover: #2980b9;
+      --result-border: #eee;
+      --link-color: #3498db;
+      --footer-color: #7f8c8d;
+    }
 
-        .dark-mode {
-            --bg-color: #1a1a1a;
-            --text-color: #f0f0f0;
-            --container-bg: #2d2d2d;
-            --input-bg: #3d3d3d;
-            --input-border: #555;
-            --button-bg: #1e88e5;
-            --button-hover: #1565c0;
-            --result-border: #444;
-            --link-color: #64b5f6;
-            --footer-color: #aaa;
-        }
+    .dark-mode {
+      --bg-color: #1a1a1a;
+      --text-color: #f0f0f0;
+      --container-bg: #2d2d2d;
+      --input-bg: #3d3d3d;
+      --input-border: #555;
+      --button-bg: #1e88e5;
+      --button-hover: #1565c0;
+      --result-border: #444;
+      --link-color: #64b5f6;
+      --footer-color: #aaa;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-            transition: background-color 0.3s, color 0.3s;
-        }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
+    }
 
-        h1 {
-            color: var(--text-color);
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    h1 {
+      color: var(--text-color);
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-        .container {
-            background-color: var(--container-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: background-color 0.3s;
-        }
+    .container {
+      background-color: var(--container-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
 
-        input, select {
-            padding: 8px;
-            margin: 5px 0;
-            width: 100%;
-            box-sizing: border-box;
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            border: 1px solid var(--input-border);
-            border-radius: 4px;
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-        }
+    input,
+    select {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    }
 
-        button {
-            background-color: var(--button-bg);
-            color: white;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
+    button {
+      background-color: var(--button-bg);
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
 
-        button:hover {
-            background-color: var(--button-hover);
-        }
+    button:hover {
+      background-color: var(--button-hover);
+    }
 
-        #results {
-            margin-top: 20px;
-        }
+    #results {
+      margin-top: 20px;
+    }
 
-        .result-item {
-            padding: 10px;
-            border-bottom: 1px solid var(--result-border);
-            transition: border-color 0.3s;
-        }
+    .result-item {
+      padding: 10px;
+      border-bottom: 1px solid var(--result-border);
+      transition: border-color 0.3s;
+    }
 
-        .similarity {
-            color: var(--footer-color);
-            font-size: 0.9em;
-            transition: color 0.3s;
-        }
+    .similarity {
+      color: var(--footer-color);
+      font-size: 0.9em;
+      transition: color 0.3s;
+    }
 
-        .error {
-            color: #e74c3c;
-        }
+    .error {
+      color: #e74c3c;
+    }
 
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: var(--text-color);
-        }
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: var(--text-color);
+    }
 
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            color: var(--footer-color);
-            font-size: 0.9em;
-            transition: color 0.3s;
-        }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      color: var(--footer-color);
+      font-size: 0.9em;
+      transition: color 0.3s;
+    }
 
-        footer a {
-            color: var(--link-color);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
+    footer a {
+      color: var(--link-color);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
 
-        footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Добавляем новые стили для кнопок */
+    .word-actions {
+      display: inline-flex;
+      margin-left: 10px;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .word-action {
+      cursor: pointer;
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--button-bg);
+      color: white;
+      border-radius: 3px;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+
+    .word-action:hover {
+      background: var(--button-hover);
+    }
+
+    .word-action.copy {
+      background: #6c757d;
+      font-size: 12px;
+    }
+
+    .word-action.copy:hover {
+      background: #5a6268;
+    }
+
+    .clickable-word {
+      cursor: pointer;
+    }
+
+    .clickable-word:hover {
+      color: var(--button-hover);
+    }
+  </style>
 </head>
+
 <body>
-    <button class="theme-toggle" id="themeToggle">🌓</button>
-    
-    <h1>VectorSynth</h1>
-    <div class="container">
-        <div>
-            <label for="expression">Выражение (например "царь - мужчина + женщина" или просто слово):</label>
-            <input type="text" id="expression" placeholder="Введите слово или выражение">
-        </div>
-        <div>
-            <label for="topN">Количество результатов:</label>
-            <select id="topN">
-                <option value="10">10</option>
-                <option value="20" selected>20</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
-        </div>
-        <button id="search">Поиск</button>
-        
-        <div id="results"></div>
+  <button class="theme-toggle" id="themeToggle">🌓</button>
+
+  <h1>VectorSynth</h1>
+  <div class="container">
+    <div>
+      <label for="expression">Выражение (например "царь - мужчина + женщина" или просто слово):</label>
+      <input type="text" id="expression" placeholder="Введите слово или выражение">
     </div>
+    <div>
+      <label for="topN">Количество результатов:</label>
+      <select id="topN">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+    <button id="search">Поиск</button>
 
-    <footer>
-        <div>
-            <a href="https://github.com/terratensor/vectorsynth" target="_blank">GitHub проекта</a> | 
-            <a href="https://github.com/terratensor/glove-pipeline" target="_blank">GloVe Pipeline</a> | 
-            <a href="https://svodd.ru" target="_blank">Источник данных: Svodd.Ru</a>
-        </div>
-        <div style="margin-top: 10px;">
-            © 2025 VectorSynth | Работает на <a href="https://golang.org" target="_blank">Go</a>
-        </div>
-    </footer>
+    <div id="results"></div>
+  </div>
 
-    <script>
-        // Обработчик темы
-        const themeToggle = document.getElementById('themeToggle');
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-        
-        // Проверяем сохранённую тему или системные настройки
-        const currentTheme = localStorage.getItem('theme');
-        if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
-            document.body.classList.add('dark-mode');
-            themeToggle.textContent = '🌞';
+  <footer>
+    <div>
+      <a href="https://github.com/terratensor/vectorsynth" target="_blank">GitHub проекта</a> |
+      <a href="https://github.com/terratensor/glove-pipeline" target="_blank">GloVe Pipeline</a> |
+      <a href="https://svodd.ru" target="_blank">Источник данных: Svodd.Ru</a>
+    </div>
+    <div style="margin-top: 10px;">
+      © 2025 VectorSynth | Работает на <a href="https://golang.org" target="_blank">Go</a>
+    </div>
+  </footer>
+
+  <script>
+    // Обработчик темы
+    const themeToggle = document.getElementById('themeToggle');
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+    // Проверяем сохранённую тему или системные настройки
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+      document.body.classList.add('dark-mode');
+      themeToggle.textContent = '🌞';
+    } else {
+      themeToggle.textContent = '🌜';
+    }
+
+    // Переключение темы
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      themeToggle.textContent = isDark ? '🌞' : '🌜';
+    });
+
+    // Поиск
+    function performSearch() {
+      let expression = document.getElementById('expression').value.trim();
+      // Приводим к нижнему регистру на клиенте (опционально)
+      expression = expression.toLowerCase();
+      const topN = document.getElementById('topN').value;
+
+      if (!expression) {
+        document.getElementById('results').innerHTML =
+          '<div class="error">Пожалуйста, введите выражение</div>';
+        return;
+      }
+
+      document.getElementById('results').innerHTML = '<div>Идёт поиск...</div>';
+
+      fetch('/api/similar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          expression: expression,
+          topN: parseInt(topN)
+        })
+      })
+        .then(response => {
+          if (!response.ok) {
+            return response.text().then(text => { throw new Error(text) });
+          }
+          return response.json();
+        })
+        .then(results => {
+          displayResults(results);
+        })
+        .catch(error => {
+          document.getElementById('results').innerHTML =
+            `<div class="error">Ошибка: ${error.message}</div>`;
+        });
+    }
+
+    // Обработчики событий
+    document.getElementById('search').addEventListener('click', performSearch);
+    document.getElementById('expression').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        performSearch();
+      }
+    });
+
+    function displayResults(results) {
+      const resultsDiv = document.getElementById('results');
+
+      if (results.length === 0) {
+        resultsDiv.innerHTML = '<div>Ничего не найдено</div>';
+        return;
+      }
+
+      let html = '<h3>Результаты:</h3>';
+      results.forEach((item, index) => {
+        html += `
+            <div class="result-item">
+                ${index + 1}. 
+                <span class="clickable-word" onclick="useWordInSearch('${item.word.replace(/'/g, "\\'")}')">
+                    ${item.word}
+                </span>
+                <span class="similarity">(сходство: ${item.similarity.toFixed(4)})</span>
+                <span class="word-actions">
+                    <span class="word-action" onclick="addToSearch('+', '${item.word.replace(/'/g, "\\'")}')">+</span>
+                    <span class="word-action" onclick="addToSearch('-', '${item.word.replace(/'/g, "\\'")}')">−</span>
+                    <span class="word-action copy" title="Копировать" onclick="copyToClipboard('${item.word.replace(/'/g, "\\'")}')">⎘</span>
+                </span>
+            </div>
+        `;
+      });
+
+      resultsDiv.innerHTML = html;
+    }
+
+    // Новая функция для копирования в буфер
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Можно добавить уведомление об успешном копировании
+        const notification = document.createElement('div');
+        notification.textContent = 'Скопировано!';
+        notification.style.position = 'fixed';
+        notification.style.bottom = '20px';
+        notification.style.right = '20px';
+        notification.style.backgroundColor = '#28a745';
+        notification.style.color = 'white';
+        notification.style.padding = '10px';
+        notification.style.borderRadius = '5px';
+        notification.style.zIndex = '1000';
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 2000);
+      }).catch(err => {
+        console.error('Ошибка копирования: ', err);
+      });
+    }
+
+    // Обработчик клика по слову
+    function useWordInSearch(word) {
+      document.getElementById('expression').value = word;
+      performSearch();
+    }
+
+    // Обработчик добавления слова с оператором
+    function addToSearch(operator, word) {
+      const input = document.getElementById('expression');
+      const currentValue = input.value.trim();
+
+      if (currentValue === '') {
+        input.value = word;
+      } else {
+        // Добавляем оператор и слово, если в конце уже нет оператора
+        const lastChar = currentValue[currentValue.length - 1];
+        if (lastChar === '+' || lastChar === '-') {
+          input.value = `${currentValue} ${word}`;
         } else {
-            themeToggle.textContent = '🌜';
+          input.value = `${currentValue} ${operator} ${word}`;
         }
+      }
 
-        // Переключение темы
-        themeToggle.addEventListener('click', () => {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            themeToggle.textContent = isDark ? '🌞' : '🌜';
-        });
-
-        // Поиск
-        function performSearch() {
-            let expression = document.getElementById('expression').value.trim();
-            // Приводим к нижнему регистру на клиенте (опционально)
-            expression = expression.toLowerCase();
-            const topN = document.getElementById('topN').value;
-            
-            if (!expression) {
-                document.getElementById('results').innerHTML = 
-                    '<div class="error">Пожалуйста, введите выражение</div>';
-                return;
-            }
-
-            document.getElementById('results').innerHTML = '<div>Идёт поиск...</div>';
-
-            fetch('/api/similar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    expression: expression,
-                    topN: parseInt(topN)
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text) });
-                }
-                return response.json();
-            })
-            .then(results => {
-                displayResults(results);
-            })
-            .catch(error => {
-                document.getElementById('results').innerHTML = 
-                    `<div class="error">Ошибка: ${error.message}</div>`;
-            });
-        }
-
-        // Обработчики событий
-        document.getElementById('search').addEventListener('click', performSearch);
-        document.getElementById('expression').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-        function displayResults(results) {
-            const resultsDiv = document.getElementById('results');
-            
-            if (results.length === 0) {
-                resultsDiv.innerHTML = '<div>Ничего не найдено</div>';
-                return;
-            }
-
-            let html = '<h3>Результаты:</h3>';
-            results.forEach((item, index) => {
-                html += `
-                    <div class="result-item">
-                        ${index + 1}. ${item.word} 
-                        <span class="similarity">(сходство: ${item.similarity.toFixed(4)})</span>
-                    </div>
-                `;
-            });
-
-            resultsDiv.innerHTML = html;
-        }
-    </script>
+      // Фокусируемся на поле ввода
+      input.focus();
+    }
+  </script>
 </body>
+
 </html>
